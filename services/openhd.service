@@ -1,0 +1,15 @@
+[Unit]
+Description=Primary controller for FPV camera and telemetry
+After=wfb_config.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/openhd_controller /etc/default/openhd
+ExecReload=/bin/kill -1 $MAINPID
+ExecStop=/bin/kill -9 $MAINPID
+TimeoutStopSec=5s
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
