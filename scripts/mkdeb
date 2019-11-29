@@ -14,8 +14,11 @@ cd build
 
 # Build a local copy of wifibroadcast_bridge to get the fec library.
 git clone https://github.com/webbbn/wifibroadcast_bridge.git
-./wifibroadcast_bridge/scripts/mkdeb
-dpkg -i wifibroadcast_bridge/build/*.deb
+(
+    cd wifibroadcast_bridge
+    ./scripts/mkdeb
+    dpkg -i build/*.deb
+)
 
 # Build this deb package
 cmake ..
