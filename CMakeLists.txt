@@ -2,8 +2,21 @@
 cmake_minimum_required(VERSION 3.5)
 project(Open.HD-NG)
 
+# Point to our local cmake files
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+# Default the CMAKE_INSTALL_PREFIX
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  SET(CMAKE_INSTALL_PREFIX "/" CACHE PATH "Change the default installation director (default=/)" FORCE)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+# Generate version information
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version.cc ${CMAKE_CURRENT_BINARY_DIR}/_version.cc
+  COMMAND ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/cmake/version.cmake
+  )
+
+# Build optimized
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DNDEBUG")
 
@@ -68,3 +81,16 @@ install(FILES "${PROJECT_SOURCE_DIR}/conf/openhd" DESTINATION etc/default COMPON
 
 # Install the service files
 install(FILES "${PROJECT_SOURCE_DIR}/services/openhd.service" DESTINATION etc/systemd/system COMPONENT configuratios)
+
+# Add the debian debian package dependencies
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev")
+
+# Add rules to build a debian package
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "webbbn@gmail.con")
+set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
+set(CPACK_PACKAGE_VERSION "0.1.0")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY /)
+set(CPACK_SET_DESTDIR true)
+set(CPACK_INSTALL_PREFIX /)
+include(CPack)
