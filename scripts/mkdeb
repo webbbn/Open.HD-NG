@@ -17,7 +17,7 @@ git clone https://github.com/webbbn/wifibroadcast_bridge.git
 (
     cd wifibroadcast_bridge
     ./scripts/mkdeb
-    dpkg -i build/*.deb
+    sudo dpkg -i build/*.deb
 )
 
 # Build this deb package
