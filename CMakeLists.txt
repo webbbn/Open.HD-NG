@@ -83,7 +83,7 @@ install(FILES "${PROJECT_SOURCE_DIR}/conf/openhd" DESTINATION etc/default COMPON
 install(FILES "${PROJECT_SOURCE_DIR}/services/openhd.service" DESTINATION etc/systemd/system COMPONENT configuratios)
 
 # Add the debian debian package dependencies
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev cython3")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev cython3 libv4l-dev")
 
 # Add rules to build a debian package
 set(CPACK_GENERATOR "DEB")
