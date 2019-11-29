@@ -9,25 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: update-submodules
-      run: git submodule update --init
-    - name: install-dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libboost-all-dev cmake cython3 libv4l-dev
-    - name: cmake-configure
-      run: |
-        mkdir build
-        cd build
-        cmake ..
-    - name: build
-      run: |
-        cd build
-        make
-    - name: create-deb
-      run: |
-        cd build
-        cpack
+    - name: compile
+      run: ./scripts/mkdeb
     - name: move-deb
       run: |
         mkdir deb

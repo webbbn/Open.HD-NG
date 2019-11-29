@@ -1,11 +1,23 @@
 #!/bin/sh
 
+# Install the build dependencies
 sudo apt-get update
 sudo apt-get install -y git libboost-all-dev cmake build-essential cython3 libv4l-dev
+
+# Make sure the submodules are updated
 git submodule update --init
+
+# Create the build directory
 rm -rf build
 mkdir build
 cd build
+
+# Build a local copy of wifibroadcast_bridge to get the fec library.
+git clone https://github.com/webbbn/wifibroadcast_bridge.git
+./wifibroadcast_bridge/scripts/mkdeb
+dpkg -i wifibroadcast_bridge/build/*.deb
+
+# Build this deb package
 cmake ..
 make
 cpack
