@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/webbbn/Open.HD-NG/workflows/amd64/badge.svg)  [![Actions Status](https://github.com/webbbn/Open.HD-NG/workflows/arm32v7-bionic/badge.svg) [![Actions Status](https://github.com/webbbn/Open.HD-NG/workflows/raspi-buster/badge.svg)
+
 # Open.HD-NG
 Refactor and update of OpenHD
 

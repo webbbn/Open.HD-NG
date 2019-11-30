@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Install the build dependencies
-sudo apt-get update
-sudo apt-get install -y git libboost-all-dev cmake build-essential cython3 libv4l-dev
+apt-get update
+apt-get install -y git libboost-all-dev cmake build-essential cython3 libv4l-dev
 
 # Make sure the submodules are updated
 git submodule update --init
@@ -17,7 +17,7 @@ git clone https://github.com/webbbn/wifibroadcast_bridge.git
 (
     cd wifibroadcast_bridge
     ./scripts/mkdeb
-    sudo dpkg -i build/*.deb
+    dpkg -i build/*.deb
 )
 
 # Build this deb package
