@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: compile
-      run: ./scripts/mkdeb
+      run: sudo ./scripts/mkdeb
     - name: move-deb
       run: |
         mkdir deb
