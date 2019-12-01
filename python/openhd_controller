@@ -67,6 +67,7 @@ if __name__ == '__main__':
         'prefer_picam': True,
         'fec_ratio': 0,
         'telemetry_uart': '/dev/ttyS0',
+        'telemetry_baudrate': 57600,
         'rc_host': '127.0.0.1',
         'rc_port': 15441,
         'telemetry_protocol': 'mavlink',
@@ -112,6 +113,7 @@ if __name__ == '__main__':
     # Start the telemetry parsers / forwarders
     telem = telemetry.Telemetry(protocol=config['global'].get('telemetry_protocol'),
                                 uart=config['global'].get('telemetry_uart'),
+                                baudrate=config['global'].get('telemetry_baudrate'),
                                 host=config['global'].get('telemetry_host'),
                                 port=int(config['global'].get('telemetry_port')))
 

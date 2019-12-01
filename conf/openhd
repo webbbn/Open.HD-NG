@@ -10,6 +10,7 @@ intra_period = 5
 prefer_picam = 1
 fec_ratio = 0.0
 telemetry_uart = /dev/ttyS0
+telemetry_baudrate=57600
 telemetry_protocol = mavlink
 telemetry_host = 127.0.0.1
 telemetry_port = 14550
