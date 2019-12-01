@@ -1,15 +1,15 @@
 [global]
 loglevel = info
-video_width = 1280
-video_height = 720
-fps = 60
+video_width = 2560
+video_height = 1280
+fps = 30
 bitrate = 3000000
 quality = 20
 inline_headers = 1
 intra_period = 5
 prefer_picam = 1
 fec_ratio = 0.0
-telemetry_uart = /dev/ttyS0
+telemetry_uart = /dev/ttyS1
 telemetry_baudrate=57600
 telemetry_protocol = mavlink
 telemetry_host = 127.0.0.1

@@ -86,9 +86,9 @@ if __name__ == '__main__':
     if not isinstance(log_level, int):
         print("Invalid log level: %s - setting to info" % (args.loglevel))
         log_level = logging.INFO
-    logger = logging.getLogger('fpvng_controller')
+    logger = logging.getLogger('openhd_controller')
     logging.basicConfig(level=log_level, format="%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S",
-                        handlers = [logging.handlers.SysLogHandler(address = "/dev/log")])
+                        handlers = [logging.StreamHandler(), logging.handlers.SysLogHandler(address = "/dev/log")])
 
     # Setup an exit handler to gracefully exit
     signal.signal(signal.SIGINT, exit_handler)

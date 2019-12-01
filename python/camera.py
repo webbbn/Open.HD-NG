@@ -403,7 +403,7 @@ def best_camera(modes, width = 10000, height = 10000, fps = 60, prefer_picam=Tru
 
 if __name__ == '__main__':
     logging.basicConfig(level='DEBUG')
-    cam = CameraProcess(host="192.168.1.38", port=5600)
+    cam = CameraProcess(host="192.168.1.182", port=5600, width=2560)
     # cam = CameraProcess()
     # cam = CameraProcess(host="127.0.0.1", port=5700, width=2560, height=1280, fec_ratio=0.5)
     # cam = CameraProcess(host="127.0.0.1", port=5700, fec_ratio=0.5)
