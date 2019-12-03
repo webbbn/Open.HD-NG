@@ -16,7 +16,7 @@ jobs:
     - name: compile-kali-rolling
       run: |
         sudo ./scripts/mkdeb
-        mkdir deb/kali-rolling
+        mkdir -p deb/kali-rolling
         sudo mv build/*.deb deb/kali-rolling
         sudo rm -rf build
     - name: compile-bionic-armhf
