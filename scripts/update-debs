@@ -1,0 +1,27 @@
+#!/bin/sh
+
+OPENHD_URL="https://github.com/webbbn/Open.HD-NG/suites/340105382/artifacts/534009"
+
+sudo apt-get install dpkg-sig dpkg-dev apt-utils
+
+# Make sure the directories exist
+mkdir -p repo/dists/kali-rolling/main/binary-amd64
+mkdir -p repo/dists/bionic/main/binary-armhf
+mkdir -p repo/dists/buster/main/binary-armhf
+mkdir -p repo/dists/stretch/main/binary-armhf
+
+# Download the Open.HD-NG archive and install it
+wget -O deb-files.zip ${OPENHD_URL}
+unzip deb-files.zip
+cp deb-files/kali-rolling/open.hd-ng_0.1.0_amd64.deb repo/dists/kali-rolling/main/binary-amd64
+cp deb-files/bionic-armhf/open.hd-ng_0.1.0_armhf.deb repo/dists/bionic/main/binary-armhf
+cp deb-files/buster-armhf/open.hd-ng_0.1.0_armhf.deb repo/dists/buster/main/binary-armhf
+cp deb-files/stretch-armhf/open.hd-ng_0.1.0-1_armhf.deb repo/dists/stretch/main/binary-armhf
+rm -rf deb-files
+
+# Update the package database files
+DIR=`dirname $0`
+${DIR}/update-release kali-rolling main
+${DIR}/update-release bionic main
+${DIR}/update-release buster main
+${DIR}/update-release stretch main

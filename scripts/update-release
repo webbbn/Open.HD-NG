@@ -1,0 +1,30 @@
+#!/bin/bash
+
+BASE=/home/webbbn/Open.HD-NG-repo/repo
+
+DISTRIBUTION=$1
+COMPONENT=$2
+OVERRIDE=indices/override.${DISTRIBUTION}.${COMPONENT}
+
+#
+#  Generate "Packages.gz" files
+#
+for i in amd64 armhf; do
+    if [ -d ${BASE}/dists/${DISTRIBUTION}/${COMPONENT}/binary-$i ]; then
+	(
+	    cd ${BASE}
+	    dpkg-scanpackages dists/${DISTRIBUTION}/${COMPONENT}/binary-$i |
+		gzip -9 > dists/${DISTRIBUTION}/${COMPONENT}/binary-$i/Packages.gz
+	    (
+		cd ${BASE}/dists/${DISTRIBUTION}/${COMPONENT}
+		ln -sf binary-${i}/Packages.gz .
+	    )
+	)
+    fi
+done
+
+# Create the Release file
+(
+    cd ${BASE}/dists/${DISTRIBUTION}
+    apt-ftparchive release . > Release
+)
