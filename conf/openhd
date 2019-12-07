@@ -1,4 +1,5 @@
 [global]
+mode = air
 loglevel = info
 video_width = 2560
 video_height = 1280
@@ -9,7 +10,7 @@ inline_headers = 1
 intra_period = 5
 prefer_picam = 1
 fec_ratio = 0.0
-telemetry_uart = /dev/ttyS1
+telemetry_uart = /dev/ttyS0
 telemetry_baudrate=57600
 telemetry_protocol = mavlink
 telemetry_host = 127.0.0.1

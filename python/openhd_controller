@@ -56,6 +56,7 @@ if __name__ == '__main__':
     # Read the config file
     config = configparser.ConfigParser()
     config['global'] = {
+        'mode': 'air',
         'loglevel': 'error',
         'video_width': 10000,
         'video_height': 10000,
@@ -93,22 +94,22 @@ if __name__ == '__main__':
     # Setup an exit handler to gracefully exit
     signal.signal(signal.SIGINT, exit_handler)
 
-    # Try to start the camera
-    cam = camera.CameraProcess(width=int(config['global'].get('video_width')),
-                               height=int(config['global'].get('video_height')),
-                               fps=int(config['global'].get('fps')),
-                               bitrate=int(config['global'].get('bitrate')),
-                               quality=int(config['global'].get('quality')),
-                               inline_headers=bool(config['global'].get('inline_headers')),
-                               intra_period=int(config['global'].get('intra_period')),
-                               prefer_picam=bool(config['global'].get('prefer_picam')),
-                               fec_ratio=float(config['global'].get('fec_ratio')))
-    if cam.start():
-        air_side = True
-        logging.info("Camera found. Running as Air side.")
+    # Start the camera process if we're the air side
+    if config['global'].get('mode') == "air":
+        logging.info("Running in Air mode")
+        cam = camera.CameraProcess(width=int(config['global'].get('video_width')),
+                                   height=int(config['global'].get('video_height')),
+                                   fps=int(config['global'].get('fps')),
+                                   bitrate=int(config['global'].get('bitrate')),
+                                   quality=int(config['global'].get('quality')),
+                                   inline_headers=bool(config['global'].get('inline_headers')),
+                                   intra_period=int(config['global'].get('intra_period')),
+                                   prefer_picam=bool(config['global'].get('prefer_picam')),
+                                   fec_ratio=float(config['global'].get('fec_ratio')))
+        cam.start()
     else:
-        air_side = False
-        logging.info("Camera NOT found. Running as Ground side.")
+        logging.info("Running in Ground mode")
+        cam = None
 
     # Start the telemetry parsers / forwarders
     telem = telemetry.Telemetry(protocol=config['global'].get('telemetry_protocol'),
@@ -138,4 +139,5 @@ if __name__ == '__main__':
     # if trans:
     #     trans.join()
     telem.join()
-    cam.join()
+    if cam:
+        cam.join()
