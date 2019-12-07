@@ -112,11 +112,14 @@ if __name__ == '__main__':
         cam = None
 
     # Start the telemetry parsers / forwarders
-    telem = telemetry.Telemetry(protocol=config['global'].get('telemetry_protocol'),
-                                uart=config['global'].get('telemetry_uart'),
-                                baudrate=config['global'].get('telemetry_baudrate'),
-                                host=config['global'].get('telemetry_host'),
-                                port=int(config['global'].get('telemetry_port')))
+    if config['global'].get('mode') == "air":
+        telem = telemetry.Telemetry(protocol=config['global'].get('telemetry_protocol'),
+                                    uart=config['global'].get('telemetry_uart'),
+                                    baudrate=config['global'].get('telemetry_baudrate'),
+                                    host=config['global'].get('telemetry_host'),
+                                    port=int(config['global'].get('telemetry_port')))
+    else:
+        telem = None
 
     # Start the link status receiver
     # if air_side:
@@ -138,6 +141,10 @@ if __name__ == '__main__':
     # status.join()
     # if trans:
     #     trans.join()
-    telem.join()
+    if telem:
+        telem.join()
     if cam:
         cam.join()
+    if not telem and not cam:
+        while 1:
+            time.sleep(1)

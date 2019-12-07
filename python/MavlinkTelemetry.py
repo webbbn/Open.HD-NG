@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 import queue
 import threading
 import socket
@@ -15,7 +16,6 @@ class MavlinkTelemetry(object):
     def __init__(self, uart = "/dev/ttyS0", baudrate = 57600,
                  host = "127.0.0.1", port = 14550,
                  rc_host = None, rc_port = 14551, min_packet=128):
-        print(uart, baudrate)
         self.queue = queue.Queue()
         self.uart = uart
         self.baudrate = baudrate
@@ -71,6 +71,8 @@ class MavlinkTelemetry(object):
             msg = self.mavs.recv_msg()
             if msg:
                 self.queue.put(msg)
+            else:
+                time.sleep(0.02)
 
     def start_send(self):
         obuf = bytearray()
@@ -85,5 +87,5 @@ class MavlinkTelemetry(object):
 
 if __name__ == '__main__':
     # /dev/ttyS0 pi, /dev/ttyS1 nanopi
-    telem = MavlinkTelemetry(uart='/dev/ttyS1', baudrate=57600)
+    telem = MavlinkTelemetry(uart='/dev/ttyS0', baudrate=57600)
     telem.join()
