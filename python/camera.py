@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import socket
 import struct
 import array
@@ -261,10 +262,11 @@ class CameraProcess(object):
             self.proc.join()
 
 
-def detect_cameras(device = None):
+def detect_cameras(if_exists = False):
     '''
     Detect all available cameras and modes, and return a list containing:
        type, device, width, height
+    If 'if_exists' is set to true the function just returns a boolean
     '''
 
     # Create a list of all available camera modes detected
@@ -272,9 +274,20 @@ def detect_cameras(device = None):
 
     # Try to detect Raspberry Pi cameras
     if found_picamera:
-        picam_types = []
 
-        # Try to detect the first pi camera
+        # Does the user only care if a camera exists?
+        if if_exists:
+
+            # picamera appears to keep a handle on the camera and prevent other processes from gaining access to it.
+            # The camera runs in a separate process, so we can't let that happen in the main process.
+            # Just use a system call to determing if a camera exists.
+            if "detected=1" in os.popen('/opt/vc/bin/vcgencmd get_camera').read():
+                return True
+
+        else:
+            picam_types = []
+
+            # Try to detect the first pi camera
         try:
             cam = picamera.PiCamera(camera_num=0)
             type = cam.revision
@@ -304,53 +317,53 @@ def detect_cameras(device = None):
             # V1 camera
             if type == 'ov5647':
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1920,
-                                     'height': 1080,
-                                     'fps': 30 })
+                                   'device': device,
+                                   'width': 1920,
+                                   'height': 1080,
+                                   'fps': 30 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1296,
-                                     'height': 972,
-                                     'fps': 42 })
+                                   'device': device,
+                                   'width': 1296,
+                                   'height': 972,
+                                   'fps': 42 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1296,
-                                     'height': 730,
-                                     'fps': 49 })
+                                   'device': device,
+                                   'width': 1296,
+                                   'height': 730,
+                                   'fps': 49 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 640,
-                                     'height': 480,
-                                     'fps': 90 })
+                                   'device': device,
+                                   'width': 640,
+                                   'height': 480,
+                                   'fps': 90 })
 
             # V2 camera
             if type == 'imx219':
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1920,
-                                     'height': 1080,
-                                     'fps': 30 })
+                                   'device': device,
+                                   'width': 1920,
+                                   'height': 1080,
+                                   'fps': 30 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1640,
-                                     'height': 1232,
-                                     'fps': 40 })
+                                   'device': device,
+                                   'width': 1640,
+                                   'height': 1232,
+                                   'fps': 40 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1640,
-                                     'height': 922,
-                                     'fps': 40 })
+                                   'device': device,
+                                   'width': 1640,
+                                   'height': 922,
+                                   'fps': 40 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 1280,
-                                     'height': 720,
-                                     'fps': 90 })
+                                   'device': device,
+                                   'width': 1280,
+                                   'height': 720,
+                                   'fps': 90 })
                 cam_modes.append({ 'type': 'picam',
-                                     'device': device,
-                                     'width': 640,
-                                     'height': 480,
-                                     'fps': 200 })
+                                   'device': device,
+                                   'width': 640,
+                                   'height': 480,
+                                   'fps': 200 })
 
     # Try to find an H264 capable device
     for d in v4l.get_devices():

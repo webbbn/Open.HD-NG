@@ -96,8 +96,7 @@ if __name__ == '__main__':
     logging.info("Logging at level: " + config['global'].get('loglevel'))
 
     # Determine if we're running as ground or air by detecting if a camera is present
-    cameras = camera.detect_cameras()
-    if len(cameras):
+    if camera.detect_cameras(if_exists=True):
         is_ground = False
         logging.info("At least one camera detected, so running in Air mode")
     else:

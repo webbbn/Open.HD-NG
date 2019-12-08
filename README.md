@@ -13,7 +13,11 @@ git submodule update --init
 
 ### Install dependencies
 
-sudo apt install python3-iniparse
+~~~
+sudo apt install python3-iniparse cmake
+~~~
+
+Install wifibroadcast_bridge from here: https://github.com/webbbn/wifibroadcast_bridge
 
 ### Configure the software
 
