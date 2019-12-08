@@ -2,6 +2,7 @@
 
 import time
 import queue
+import logging
 import threading
 import socket
 import pymavlink.mavutil as mavutil
@@ -26,7 +27,13 @@ class MavlinkTelemetry(object):
         self.rc_port = rc_port
         self.rc_chan = None
         self.min_packet = min_packet
-        self.mavs = mavutil.mavlink_connection(uart, baud=baudrate)
+        self.thread = None
+        try:
+            self.mavs = mavutil.mavlink_connection(uart, baud=baudrate)
+        except:
+            logging.warning("Unable to start Mavlink telemetry on " + uart +
+                            " at baudrate " + str(baudrate))
+            return
 
         # Create the RC receive thread
         if rc_host:
@@ -45,9 +52,11 @@ class MavlinkTelemetry(object):
         self.join()
 
     def join(self):
-        self.thread.join()
-        if self.send_thread:
-            self.send_thread.start()
+        if self.thread:
+            self.thread.join()
+        else:
+            while 1:
+                time.sleep(1)
 
     def recv_rc(self):
 

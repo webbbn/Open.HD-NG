@@ -1,9 +1,8 @@
 [global]
-mode = air
 loglevel = info
-video_width = 2560
-video_height = 1280
-fps = 30
+video_width = 1280
+video_height = 720
+fps = 60
 bitrate = 3000000
 quality = 20
 inline_headers = 1

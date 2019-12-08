@@ -178,6 +178,7 @@ class Camera(object):
             # Open the device
             control = Control(self.device)
             control.set_control_value(9963800, 2)
+            control.close()
 
             # Start streaming frames
             frame = Frame(self.device, self.width, self.height)
@@ -357,20 +358,24 @@ def detect_cameras(device = None):
             continue
         try:
             control = Control(d)
-            controls = control.get_controls()
-            logging.debug(format_as_table(controls, controls[0].keys(), controls[0].keys(), 'name', add_newline=True))
-            formats = control.get_formats()
-            logging.debug(format_as_table(formats, formats[0].keys(), formats[0].keys(), 'format', add_newline=True))
-            for format in formats:
-                if format["format"] == "H264":
-                    cam_modes.append({ 'type': 'v4l2',
-                                       'device': d,
-                                       'width': format["width"],
-                                       'height': format["height"],
-                                       'fps': 30 })
-                    logging.info("Found V4L2: " + d + " " + str(format["width"]) + "x" +  str(format["height"]))
         except Exception as e:
             continue
+        
+        controls = control.get_controls()
+        if len(controls):
+            logging.debug(format_as_table(controls, controls[0].keys(), controls[0].keys(), 'name', add_newline=True))
+        formats = control.get_formats()
+        if len(formats):
+            logging.debug(format_as_table(formats, formats[0].keys(), formats[0].keys(), 'format', add_newline=True))
+        for format in formats:
+            if format["format"] == "H264":
+                cam_modes.append({ 'type': 'v4l2',
+                                   'device': d,
+                                   'width': format["width"],
+                                   'height': format["height"],
+                                   'fps': 30 })
+                logging.info("Found V4L2: " + d + " " + str(format["width"]) + "x" +  str(format["height"]))
+        control.close()
 
     return cam_modes
 

@@ -11,6 +11,10 @@ Refactor and update of OpenHD
 git submodule update --init
 ~~~
 
+### Install dependencies
+
+sudo apt install python3-iniparse
+
 ### Configure the software
 
 This defaults to installing in the system directories. Add -DCMAKE_INSTALL_PREFIX=<dir> to install in a different directory.

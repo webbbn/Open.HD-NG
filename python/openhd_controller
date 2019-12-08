@@ -38,8 +38,7 @@ import logging.handlers
 import configparser
 import multiprocessing as mp
 
-from openhd import camera, telemetry
-#import transmitter, utp_relay
+from openhd import camera, telemetry, settings
 
 # Define an exit handler to do a graceful shutdown
 def exit_handler(sig, frame):
@@ -47,16 +46,20 @@ def exit_handler(sig, frame):
 
 if __name__ == '__main__':
 
-    # The config filename should be the first and only command line option
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: " + sys.argv[0] + " <config file>\n")
+    # This program normally gets it's configuration from it's own config file,
+    # but a second, OpenHD config file can also be used to update the setting
+    # and also update the setting of the other OpenHD components.
+    #
+    # The first argument should be the component config file.
+    # An option second argument is the OpenHD config file
+    if len(sys.argv) != 2 and len(sys.argv) != 3:
+        sys.stderr.write("Usage: " + sys.argv[0] + " <config file> [Open.HD config file]\n")
         exit(1)
     config_filename = sys.argv[1]
 
     # Read the config file
     config = configparser.ConfigParser()
     config['global'] = {
-        'mode': 'air',
         'loglevel': 'error',
         'video_width': 10000,
         'video_height': 10000,
@@ -90,13 +93,39 @@ if __name__ == '__main__':
     logger = logging.getLogger('openhd_controller')
     logging.basicConfig(level=log_level, format="%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S",
                         handlers = [logging.StreamHandler(), logging.handlers.SysLogHandler(address = "/dev/log")])
+    logging.info("Logging at level: " + config['global'].get('loglevel'))
 
+    # Determine if we're running as ground or air by detecting if a camera is present
+    cameras = camera.detect_cameras()
+    if len(cameras):
+        is_ground = False
+        logging.info("At least one camera detected, so running in Air mode")
+    else:
+        is_ground = True
+        logging.info("No camera detected, so running in Ground mode")
+
+    # Parse the Open.HD config file if it exists.
+    if len(sys.argv) == 3:
+        if os.path.exists(sys.argv[2]):
+            if is_ground:
+                logging.info("Updating settings as ground from: " + sys.argv[2])
+            else:
+                logging.info("Updating settings as air from: " + sys.argv[2])
+            sf = settings.Settings(sys.argv[2]) 
+            sf.update(is_ground)
+
+            # Reload our configuration file
+            config.read(config_filename)
+
+        else:
+            logging.info("Open.HD settings file: " + sys.argv[2] + " does not exist")
+
+        
     # Setup an exit handler to gracefully exit
     signal.signal(signal.SIGINT, exit_handler)
 
     # Start the camera process if we're the air side
-    if config['global'].get('mode') == "air":
-        logging.info("Running in Air mode")
+    if not is_ground:
         cam = camera.CameraProcess(width=int(config['global'].get('video_width')),
                                    height=int(config['global'].get('video_height')),
                                    fps=int(config['global'].get('fps')),
@@ -108,11 +137,10 @@ if __name__ == '__main__':
                                    fec_ratio=float(config['global'].get('fec_ratio')))
         cam.start()
     else:
-        logging.info("Running in Ground mode")
         cam = None
 
     # Start the telemetry parsers / forwarders
-    if config['global'].get('mode') == "air":
+    if not is_ground:
         telem = telemetry.Telemetry(protocol=config['global'].get('telemetry_protocol'),
                                     uart=config['global'].get('telemetry_uart'),
                                     baudrate=config['global'].get('telemetry_baudrate'),
@@ -141,6 +169,10 @@ if __name__ == '__main__':
     # status.join()
     # if trans:
     #     trans.join()
+    if is_ground:
+        logging.info("Running in Ground mode")
+    else:
+        logging.info("Running in Air mode")
     if telem:
         telem.join()
     if cam:

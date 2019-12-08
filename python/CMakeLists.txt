@@ -35,4 +35,8 @@ install(FILES
   MultiWii.py
   MavlinkTelemetry.py
   transmitter.py
+  settings.py
+  wifi_settings.py
+  openhd_settings.py
+  wfb_bridge_settings.py
   DESTINATION ${RELATIVE_PYTHON_DIR})

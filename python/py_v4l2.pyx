@@ -432,6 +432,9 @@ cdef class Control:
         if -1 == self.fd:
             raise CameraError('Error opening device {}'.format(device_path))
 
+    def __cdel__(self):
+        self.close()
+            
     cdef enumerate_menu(self, v4l2_queryctrl queryctrl):
         cdef v4l2_querymenu querymenu
         querymenu.id = queryctrl.id
@@ -475,8 +478,6 @@ cdef class Control:
 
             queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL
 
-        if errno != EINVAL:
-            raise CameraError('Querying controls failed')
         return controls
 
     cpdef void set_control_value(self, control_id, value):
@@ -557,7 +558,9 @@ cdef class Control:
         return ret
 
     def close(self):
-        v4l2_close(self.fd)
+        if (self.fd > 0):
+            v4l2_close(self.fd)
+            self.fd = -1
 
 def get_devices():
     devs = sorted(glob.glob("/dev/video*"))
