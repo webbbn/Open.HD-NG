@@ -17,9 +17,6 @@ class WifiSettings:
         # Fetch the settings values from the settings file
         freq = settings.getint('FREQ')
         datarate = settings.getint('DATARATE')
-        #use_mcs = settings.getbool('UseMCS')
-        #use_stbc = settings.getbool('UseSTBC')
-        #use_ldpc = settings.getbool('UseLDPC')
         if is_ground:
             tx_power = settings.getint('TxPowerGround')
         else:
