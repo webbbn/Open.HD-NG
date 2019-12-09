@@ -262,7 +262,7 @@ class CameraProcess(object):
             self.proc.join()
 
 
-def detect_cameras(if_exists = False):
+def detect_cameras(device = False, if_exists = False):
     '''
     Detect all available cameras and modes, and return a list containing:
        type, device, width, height
