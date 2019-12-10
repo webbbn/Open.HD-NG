@@ -283,6 +283,8 @@ def detect_cameras(device = False, if_exists = False):
             # Just use a system call to determing if a camera exists.
             if "detected=1" in os.popen('/opt/vc/bin/vcgencmd get_camera').read():
                 return True
+            else:
+                return False
 
         else:
             picam_types = []

@@ -26,23 +26,38 @@ class Settings:
 
     def get(self, name):
         '''Get a value by name'''
-        return self.parser.get('settings', name)
+        try:
+            return self.parser.get('settings', name)
+        except:
+            return None
 
     def getbool(self, name):
         '''Get the value of a boolean setting, which should be one of 0,no,false,1,yes,true'''
-        return self.parser.getboolean('settings', name)
+        try:
+            return self.parser.getboolean('settings', name)
+        except:
+            return None
 
     def getint(self, name):
         '''Get the value of an integer setting'''
-        return self.parser.getint('settings', name)
+        try:
+            return self.parser.getint('settings', name)
+        except:
+            return None
 
     def getfloat(self, name):
         '''Get the value of a floating point setting'''
-        return self.parser.getfloat('settings', name)
+        try:
+            return self.parser.getfloat('settings', name)
+        except:
+            return None
 
     def getyn(self, name):
         '''Get the value of a yes/no boolean setting, which should be either Y, or N'''
-        val = self.get(name)
+        try:
+            val = self.get(name)
+        except:
+            return False
         if val.lower() == 'y':
             return True
         else:

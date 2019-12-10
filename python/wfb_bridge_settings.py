@@ -76,7 +76,7 @@ class WFBBridgeSettings:
         return modified
 
     def update_option(self, parser, section, name, value):
-        if parser.has_option(section, name):
+        if value and parser.has_option(section, name):
             val = parser.get(section, name)
             if val != value:
                 parser.set(section, name, value)
