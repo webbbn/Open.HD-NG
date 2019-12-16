@@ -38,7 +38,7 @@ import logging.handlers
 import configparser
 import multiprocessing as mp
 
-from openhd import camera, telemetry, settings
+from openhd import camera, telemetry, settings, video_player
 
 # Define an exit handler to do a graceful shutdown
 def exit_handler(sig, frame):
@@ -148,7 +148,13 @@ if __name__ == '__main__':
     else:
         telem = None
 
-    # Start the link status receiver
+    # Start the video/osd player if ground
+    if is_ground:
+        video = video_player.VideoPlayer()
+    else:
+        video = None
+
+        # Start the link status receiver
     # if air_side:
     #     status = telemetry.UDPStatusRx(host="127.0.0.1", port=5801)
     # else:
@@ -176,6 +182,8 @@ if __name__ == '__main__':
         telem.join()
     if cam:
         cam.join()
-    if not telem and not cam:
+    if video:
+        video.join()
+    if not telem and not cam and not video:
         while 1:
             time.sleep(1)

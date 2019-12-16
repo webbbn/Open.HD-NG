@@ -39,4 +39,5 @@ install(FILES
   wifi_settings.py
   openhd_settings.py
   wfb_bridge_settings.py
+  video_player.py
   DESTINATION ${RELATIVE_PYTHON_DIR})
