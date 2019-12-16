@@ -217,5 +217,5 @@ class UDPStatusRx(object):
 
 if __name__ == '__main__':
     # /dev/ttyS0 pi, /dev/ttyS1 nanopi
-    telem = Telemetry(uart='/dev/ttyS0', baudrate=57600, protocol='mavlink')
+    telem = Telemetry(uart='/dev/ttyS1', baudrate=57600, protocol='mavlink')
     telem.join()

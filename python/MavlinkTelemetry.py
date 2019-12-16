@@ -89,12 +89,9 @@ class MavlinkTelemetry(object):
         while not self.done:
             msg = self.queue.get()
             buf = msg.get_msgbuf()
-            obuf += buf
-            if len(obuf) > self.min_packet:
-                sock.sendto(obuf, (self.host, self.port))
-                obuf = bytearray()
+            sock.sendto(buf, (self.host, self.port))
 
 if __name__ == '__main__':
     # /dev/ttyS0 pi, /dev/ttyS1 nanopi
-    telem = MavlinkTelemetry(uart='/dev/ttyS0', baudrate=57600)
+    telem = MavlinkTelemetry(uart='/dev/ttyS1', baudrate=57600)
     telem.join()
