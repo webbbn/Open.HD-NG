@@ -281,7 +281,8 @@ def detect_cameras(device = False, if_exists = False):
             # picamera appears to keep a handle on the camera and prevent other processes from gaining access to it.
             # The camera runs in a separate process, so we can't let that happen in the main process.
             # Just use a system call to determing if a camera exists.
-            if "detected=1" in os.popen('/opt/vc/bin/vcgencmd get_camera').read():
+            cameras = os.popen('/opt/vc/bin/vcgencmd get_camera').read()
+            if "detected=1" in cameras or "detected=2" in cameras:
                 return True
             else:
                 return False

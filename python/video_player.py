@@ -26,7 +26,7 @@ class VideoPlayer(object):
 
     def start_video(self):
         nc = sp.Popen(["/bin/nc", "-l", "-u", "5600"], stdout=sp.PIPE)
-        hv = sp.Popen(["/opt/vc/src/hello_pi/hello_video/hello_video.bin.48-mm"], stdin=nc.stdout)
+        hv = sp.Popen(["/opt/vc/src/hello_pi/hello_video/hello_video.bin.48.mm"], stdin=nc.stdout)
         hv.wait()
 
     def start_osd(self):
