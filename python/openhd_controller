@@ -151,6 +151,8 @@ if __name__ == '__main__':
     # Start the video/osd player if ground
     if is_ground:
         video = video_player.VideoPlayer()
+        if not video.running():
+            video = None
     else:
         video = None
 
