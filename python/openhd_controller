@@ -156,26 +156,7 @@ if __name__ == '__main__':
     else:
         video = None
 
-        # Start the link status receiver
-    # if air_side:
-    #     status = telemetry.UDPStatusRx(host="127.0.0.1", port=5801)
-    # else:
-    #     status = telemetry.UDPStatusRx(host="127.0.0.1", port=5800)
-
-    # Start the transmitter reader interface
-    # if not air_side:
-    #     trans = transmitter.Transmitter()
-    # else:
-    #     trans = None
-
-    # Start the UDP relay threads
-    # tether = udp_relay.USBTetherRelay()
-
-    # Join with the processing threads before shutting down
-    # tether.join()
-    # status.join()
-    # if trans:
-    #     trans.join()
+    # Wait for the processing threads to exit
     if is_ground:
         logging.info("Running in Ground mode")
     else:
@@ -189,3 +170,4 @@ if __name__ == '__main__':
     if not telem and not cam and not video:
         while 1:
             time.sleep(1)
+

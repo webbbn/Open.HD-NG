@@ -24,7 +24,7 @@ class Telemetry(object):
         self.rc_port = rc_port
         self.rc_chan = None
         self.mavlink = None
-        self.thread = None
+        self.msp_thread = None
 
         if protocol == "msp":
 
@@ -36,7 +36,7 @@ class Telemetry(object):
             self.mavdown = mavutil.mavlink_connection('udpout:127.0.0.1:14550')
 
             # Create the procesing thread
-            self.thread = threading.Thread(target = self.start_msp)
+            self.msp_thread = threading.Thread(target = self.start_msp)
 
         elif protocol == "mavlink":
 
@@ -54,8 +54,8 @@ class Telemetry(object):
             self.recv_thread = None
 
         # Start the processing threads
-        if self.thread:
-            self.thread.start()
+        if self.msp_thread:
+            self.msp_thread.start()
         if self.recv_thread:
             self.recv_thread.start()
 
@@ -64,13 +64,13 @@ class Telemetry(object):
         self.join()
 
     def join(self):
-        if self.thread:
+        if self.msp_thread:
             self.thread.join()
         if self.recv_thread:
             self.recv_thread.start()
         if self.mavlink:
             self.mavlink.join()
-
+                    
     def start_msp(self):
 
         counter = 0
@@ -217,5 +217,5 @@ class UDPStatusRx(object):
 
 if __name__ == '__main__':
     # /dev/ttyS0 pi, /dev/ttyS1 nanopi
-    telem = Telemetry(uart='/dev/ttyS1', baudrate=57600, protocol='mavlink')
+    telem = Telemetry(uart='/dev/serial0', baudrate=57600, protocol='mavlink')
     telem.join()

@@ -5,6 +5,7 @@ import queue
 import logging
 import threading
 import socket
+import serial
 import pymavlink.mavutil as mavutil
 from pymavlink.dialects.v10 import ardupilotmega as mavlink2
 
@@ -16,7 +17,7 @@ class MavlinkTelemetry(object):
 
     def __init__(self, uart = "/dev/ttyS0", baudrate = 57600,
                  host = "127.0.0.1", port = 14550,
-                 rc_host = None, rc_port = 14551, min_packet=128):
+                 rc_host = None, rc_port = 14551):
         self.queue = queue.Queue()
         self.uart = uart
         self.baudrate = baudrate
@@ -26,10 +27,12 @@ class MavlinkTelemetry(object):
         self.rc_host = rc_host
         self.rc_port = rc_port
         self.rc_chan = None
-        self.min_packet = min_packet
         self.thread = None
         try:
-            self.mavs = mavutil.mavlink_connection(uart, baud=baudrate)
+            # Pymavlink takes too much CPU on the zero!
+            #self.mavs = mavutil.mavlink_connection(uart, baud=baudrate)
+            self.mavs = serial.Serial(uart, baudrate, timeout=0.05)
+
         except:
             logging.warning("Unable to start Mavlink telemetry on " + uart +
                             " at baudrate " + str(baudrate))
@@ -43,9 +46,9 @@ class MavlinkTelemetry(object):
 
         # Start the processing threads
         self.thread = threading.Thread(target = self.start)
-        self.send_thread = threading.Thread(target = self.start_send)
+        #self.send_thread = threading.Thread(target = self.start_send)
         self.thread.start()
-        self.send_thread.start()
+        #self.send_thread.start()
 
     def __del__(self):
         self.done = True
@@ -54,6 +57,7 @@ class MavlinkTelemetry(object):
     def join(self):
         if self.thread:
             self.thread.join()
+            self.thread = None
         else:
             while 1:
                 time.sleep(1)
@@ -76,12 +80,14 @@ class MavlinkTelemetry(object):
             self.rc_chan = struct.unpack("<HHHHHHHHHHHHHHHH", data)
 
     def start(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         while not self.done:
-            msg = self.mavs.recv_msg()
-            if msg:
-                self.queue.put(msg)
-            else:
-                time.sleep(0.02)
+            #msg = self.mavs.recv_match(blocking=True, timeout=1.0)
+            #if msg:
+            #    self.queue.put(msg)
+            buf = self.mavs.read(1024)
+            if len(buf):
+                sock.sendto(buf, (self.host, self.port))
 
     def start_send(self):
         obuf = bytearray()
@@ -93,5 +99,5 @@ class MavlinkTelemetry(object):
 
 if __name__ == '__main__':
     # /dev/ttyS0 pi, /dev/ttyS1 nanopi
-    telem = MavlinkTelemetry(uart='/dev/ttyS1', baudrate=57600)
+    telem = MavlinkTelemetry(uart='/dev/serial0', baudrate=57600)
     telem.join()
