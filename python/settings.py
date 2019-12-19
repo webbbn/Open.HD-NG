@@ -58,7 +58,7 @@ class Settings:
             val = self.get(name)
         except:
             return False
-        if val.lower() == 'y':
+        if val.lower()[0] == 'y':
             return True
         else:
             return False

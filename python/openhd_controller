@@ -61,6 +61,8 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config['global'] = {
         'loglevel': 'error',
+        'primary_camera': True,
+        'video_port': 5600,
         'video_width': 10000,
         'video_height': 10000,
         'fps': 60,
@@ -69,9 +71,19 @@ if __name__ == '__main__':
         'inline_headers': True,
         'intra_period': 5,
         'prefer_picam': True,
-        'fec_ratio': 0,
+        'secondary_camera': False,
+        'video_port_secondary': 5601,
+        'video_width_secondary': 10000,
+        'video_height_secondary': 10000,
+        'fps_secondary': 60,
+        'bitrate_secondary': 3000000,
+        'quality_secondary': 20,
+        'inline_headers_secondary': True,
+        'intra_period_secondary': 5,
+        'prefer_picam_secondary': True,
+        'fec_ratio_secondary': 0,
         'telemetry_uart': '/dev/ttyS0',
-        'telemetry_baudrate': 57600,
+        'telemetry_baudrate': 115200,
         'rc_host': '127.0.0.1',
         'rc_port': 15441,
         'telemetry_protocol': 'mavlink',
@@ -96,7 +108,8 @@ if __name__ == '__main__':
     logging.info("Logging at level: " + config['global'].get('loglevel'))
 
     # Determine if we're running as ground or air by detecting if a camera is present
-    if camera.detect_cameras(if_exists=True):
+    cameras = camera.detect_cameras()
+    if len(cameras) > 0:
         is_ground = False
         logging.info("At least one camera detected, so running in Air mode")
     else:
@@ -123,20 +136,69 @@ if __name__ == '__main__':
     # Setup an exit handler to gracefully exit
     signal.signal(signal.SIGINT, exit_handler)
 
-    # Start the camera process if we're the air side
+    # Start the camera process(es) if we're the air side
+    cam = None
+    cam2 = None
     if not is_ground:
-        cam = camera.CameraProcess(width=int(config['global'].get('video_width')),
-                                   height=int(config['global'].get('video_height')),
-                                   fps=int(config['global'].get('fps')),
-                                   bitrate=int(config['global'].get('bitrate')),
-                                   quality=int(config['global'].get('quality')),
-                                   inline_headers=bool(config['global'].get('inline_headers')),
-                                   intra_period=int(config['global'].get('intra_period')),
-                                   prefer_picam=bool(config['global'].get('prefer_picam')),
-                                   fec_ratio=float(config['global'].get('fec_ratio')))
-        cam.start()
-    else:
-        cam = None
+
+        # Determine the primary camera device
+        primary_camera = config['global'].get('primary_camera')
+        primary_camera_index = -1
+        if primary_camera is not False:
+            if primary_camera == True or primary_camera == "True":
+                primary_camera_index = 0
+            else:
+                for i, camer in enumerate(cameras):
+                    if camer[0]['device'] == primary_camera:
+                        primary_camera_index = i
+
+        # Determine the secondary camera device
+        secondary_camera = config['global'].get('secondary_camera')
+        secondary_camera_index = -1
+        if secondary_camera is not False:
+            if secondary_camera == True or secondary_camera == "True":
+                for i, camer in enumerate(cameras):
+                    if i != primary_camera_index:
+                        secondary_camera_index = i
+                        break
+            else:
+                for i, camer in enumerate(cameras):
+                    if camer[0]['device'] == secondary_camera:
+                        secondary_camera_index = i
+
+        # Create the primary camera process if we found a device to use
+        if primary_camera_index >= 0:
+            cam = camera.CameraProcess(device=cameras[primary_camera_index][0]['device'],
+                                       width=int(config['global'].get('video_width')),
+                                       height=int(config['global'].get('video_height')),
+                                       fps=int(config['global'].get('fps')),
+                                       bitrate=int(config['global'].get('bitrate')),
+                                       quality=int(config['global'].get('quality')),
+                                       inline_headers=bool(config['global'].get('inline_headers')),
+                                       intra_period=int(config['global'].get('intra_period')),
+                                       prefer_picam=bool(config['global'].get('prefer_picam')),
+                                       fec_ratio=float(config['global'].get('fec_ratio')),
+                                       port=int(config['global'].get('video_port')))
+            logging.info("Using %s as primary camera",
+                         (cameras[primary_camera_index][0]['device']))
+            cam.start()
+
+        # Start a secondary camera process?
+        if secondary_camera_index >= 0:
+            cam2 = camera.CameraProcess(device=cameras[secondary_camera_index][0]['device'],
+                                        width=int(config['global'].get('video_width_secondary')),
+                                        height=int(config['global'].get('video_height_secondary')),
+                                        fps=int(config['global'].get('fps_secondary')),
+                                        bitrate=int(config['global'].get('bitrate_secondary')),
+                                        quality=int(config['global'].get('quality_secondary')),
+                                        inline_headers=bool(config['global'].get('inline_headers_secondary')),
+                                        intra_period=int(config['global'].get('intra_period_secondary')),
+                                        prefer_picam=bool(config['global'].get('prefer_picam_secondary')),
+                                        fec_ratio=float(config['global'].get('fec_ratio_secondary')),
+                                        port=int(config['global'].get('video_port_secondary')))
+            logging.info("Using %s as secondary camera",
+                         (cameras[secondary_camera_index][0]['device']))
+            cam2.start()
 
     # Start the telemetry parsers / forwarders
     if not is_ground:
@@ -165,6 +227,8 @@ if __name__ == '__main__':
         telem.join()
     if cam:
         cam.join()
+    if cam2:
+        cam2.join()
     if video:
         video.join()
     if not telem and not cam and not video:

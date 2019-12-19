@@ -33,6 +33,7 @@ cdef extern from 'linux/videodev2.h':
     enum: VIDIOC_DQBUF
     enum: VIDIOC_QUERYMENU
     enum: VIDIOC_QUERYCTRL
+    enum: VIDIOC_QUERYCAP
     enum: VIDIOC_G_CTRL
     enum: VIDIOC_S_CTRL
     enum: VIDIOC_ENUM_FMT
@@ -40,7 +41,6 @@ cdef extern from 'linux/videodev2.h':
     enum: V4L2_CID_BASE
     enum: V4L2_CID_LASTP1
     enum: V4L2_CID_PRIVATE_BASE
-    enum: V4L2_CTRL_FLAG_DISABLED
 
     enum: V4L2_CTRL_CLASS_USER
     enum: V4L2_CTRL_CLASS_MPEG
@@ -128,6 +128,15 @@ cdef extern from 'linux/videodev2.h':
         __u32              writebuffers #  # of buffers for write
         __u32              reserved[4]
 
+    cdef struct v4l2_capability:
+        __u8    driver[16]
+        __u8    card[32]
+        __u8    bus_info[32]
+        __u32   version
+        __u32   capabilities
+        __u32   device_caps
+        __u32   reserved[3]
+
 
 cdef public union __v4l2_format_fmt:
     v4l2_pix_format        pix
@@ -171,6 +180,8 @@ cdef extern from 'linux/videodev2.h':
         V4L2_CTRL_TYPE_INTEGER64
         V4L2_CTRL_TYPE_STRING
         V4L2_CTRL_TYPE_CTRL_CLASS
+        V4L2_CTRL_TYPE_BITMASK
+        V4L2_CTRL_TYPE_INTEGER_MENU
 
     cdef struct v4l2_queryctrl:
         __u32             id
@@ -446,6 +457,20 @@ cdef class Control:
             querymenu.index += 1
         return menu
 
+    def get_capabilities(self):
+        cdef v4l2_capability caps
+        ret = {}
+        if 0 == xioctl(self.fd, VIDIOC_QUERYCAP, &caps):
+            ret = {
+                'driver': caps.driver.decode("utf-8"),
+                'card': caps.card.decode("utf-8"),
+                'bus_info': caps.bus_info.decode("utf-8"),
+                'version': caps.version,
+                'capabilities': caps.capabilities,
+                'device_caps': caps.device_caps
+            }
+        return ret
+
     def get_controls(self):
         cdef v4l2_queryctrl queryctrl
         queryctrl.id = V4L2_CTRL_CLASS_USER | V4L2_CTRL_FLAG_NEXT_CTRL
@@ -453,7 +478,13 @@ cdef class Control:
         control_type = {
             V4L2_CTRL_TYPE_INTEGER: 'int',
             V4L2_CTRL_TYPE_BOOLEAN: 'bool',
-            V4L2_CTRL_TYPE_MENU: 'menu'
+            V4L2_CTRL_TYPE_MENU: 'menu',
+            V4L2_CTRL_TYPE_BUTTON: 'button',
+            V4L2_CTRL_TYPE_INTEGER64: 'int64',
+            V4L2_CTRL_TYPE_CTRL_CLASS: 'class',
+            V4L2_CTRL_TYPE_STRING: 'string',
+            V4L2_CTRL_TYPE_BITMASK: 'bitmask',
+            V4L2_CTRL_TYPE_INTEGER_MENU: 'int_menu'
         }
 
         while (0 == xioctl(self.fd, VIDIOC_QUERYCTRL, & queryctrl)):
@@ -465,7 +496,10 @@ cdef class Control:
             control['max'] = queryctrl.maximum
             control['step'] = queryctrl.step
             control['default'] = queryctrl.default_value
-            control['value'] = self.get_control_value(queryctrl.id)
+            try:
+                control['value'] = self.get_control_value(queryctrl.id)
+            except:
+                control['value'] = ""
             if queryctrl.flags & V4L2_CTRL_FLAG_DISABLED:
                 control['disabled'] = True
             else:
@@ -523,7 +557,7 @@ cdef class Control:
             if 0 == xioctl(self.fd, VIDIOC_G_CTRL, &control):
                 return control.value
             else:
-                raise CameraError('Getting control')
+                return 0
 
     def get_formats(self):
         cdef v4l2_fmtdesc fmt
@@ -551,8 +585,12 @@ cdef class Control:
                 elif V4L2_FRMSIZE_TYPE_STEPWISE == frmsize.type:
                     ret.append({"format": format.decode("utf-8"),
                                 "type": "stepwise",
-                                "width": frmsize.stepwise.width,
-                                "height": frmsize.stepwise.height})
+                                "min_width": frmsize.stepwise.min_width,
+                                "min_height": frmsize.stepwise.min_height,
+                                "max_width": frmsize.stepwise.max_width,
+                                "max_height": frmsize.stepwise.max_height,
+                                "width": frmsize.stepwise.max_width,
+                                "height": frmsize.stepwise.max_height})
                 frmsize.index += 1
             fmt.index += 1
         return ret

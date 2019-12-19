@@ -25,8 +25,10 @@ class OpenHDSettings:
         else:
             uart = settings.get('FC_TELEMETRY_SERIALPORT')
             baudrate = settings.get('FC_TELEMETRY_BAUDRATE')
-        video_width = settings.get('WIDTH')
-        video_height = settings.get('HEIGHT')
+        video_width = settings.getint('WIDTH')
+        video_height = settings.getint('HEIGHT')
+        secondary_camera = settings.getyn('SecondaryCamera')
+        video_port_secondary = settings.getint('VIDEO_UDP_PORT2')
         fps = settings.get('FPS')
 
         # Keep track of if we modified a setting
@@ -42,6 +44,8 @@ class OpenHDSettings:
             modified |= self.update_option(parser, 'telemetry_baudrate', baudrate)
         modified |= self.update_option(parser, 'video_width', video_width)
         modified |= self.update_option(parser, 'video_height', video_height)
+        modified |= self.update_option(parser, 'secondary_camera', secondary_camera)
+        modified |= self.update_option(parser, 'video_port_secondary', video_port_secondary)
 
         # Write out the modified settings file
         if modified:
@@ -55,9 +59,12 @@ class OpenHDSettings:
         section = 'global'
         if parser.has_option(section, name):
             val = parser.get(section, name)
-            if val != value:
+            # The settings might be different types (string, integer, bool, etc)
+            # But they all get converted into strings when they get saved, so
+            # It seems best to compare the string representations to detect change.
+            if str(val) != str(value):
                 parser.set(section, name, value)
                 logging.info("Changing " + name + " in section " + section +
-                             " from " + val + " to " + value)
+                             " from " + val + " to " + str(value))
                 return True
         return False
