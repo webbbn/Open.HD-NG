@@ -86,11 +86,12 @@ class UDPOutputStream(object):
                 self.sock.sendto(b, (host, self.port))
         else:
             for i in range(0, len(s), self.maxpacket):
-                self.sock.sendto(s[i : min(i + self.maxpacket, len(s))], (host, self.port))
+                pkt = s[i : min(i + self.maxpacket, len(s))]
+                self.sock.sendto(pkt, (host, self.port))
 
 class Camera(object):
 
-    def __init__(self, host, port, device=False, fec_ratio=0.0):
+    def __init__(self, host, port, device=False, blocksize=1400, fec_ratio=0.0):
         self.streaming = False
         self.recording = False
         self.device = device
@@ -113,7 +114,7 @@ class Camera(object):
         self.rec_inline_headers = True
 
         # Create streaming output
-        self.stream = UDPOutputStream(host, port, fec_ratio=fec_ratio)
+        self.stream = UDPOutputStream(host, port, maxpacket=blocksize, fec_ratio=fec_ratio)
 
     def __del__(self):
         self.stop_streaming()
@@ -209,13 +210,14 @@ class CameraProcess(object):
 
     def __init__(self, width = 10000, height = 10000, device = False, prefer_picam = True,
                  host = "", port = 5600, bitrate = 3000000, quality = 20, inline_headers = True, \
-                 fps = 30, intra_period = 5, fec_ratio=0.0):
+                 fps = 30, intra_period = 5, blocksize=1400, fec_ratio=0.0):
         self.host = host
         self.port = port
         self.bitrate = bitrate
         self.quality = quality
         self.inline_headers = inline_headers
         self.intra_period = intra_period
+        self.blocksize = blocksize
         self.fec_ratio = fec_ratio
         self.width = width
         self.height = height
@@ -257,7 +259,7 @@ class CameraProcess(object):
         logging.info("Streaming %dx%d/%d video to %s at %f Mbps from %s" % \
                      (self.width, self.height, self.fps, host_port, self.bitrate, self.device))
 
-        self.camera = Camera(self.host, self.port, self.device, fec_ratio=self.fec_ratio)
+        self.camera = Camera(self.host, self.port, self.device, blocksize=self.blocksize, fec_ratio=self.fec_ratio)
         self.camera.streaming_params(self.width, self.height, self.bitrate, self.intra_period, self.quality,
                                      self.fps, self.inline_headers)
 

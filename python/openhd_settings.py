@@ -27,6 +27,7 @@ class OpenHDSettings:
             baudrate = settings.get('FC_TELEMETRY_BAUDRATE')
         video_width = settings.getint('WIDTH')
         video_height = settings.getint('HEIGHT')
+        video_blocklength = settings.getint('VIDEO_BLOCKLENGTH')
         secondary_camera = settings.getyn('SecondaryCamera')
         video_port_secondary = settings.getint('VIDEO_UDP_PORT2')
         fps = settings.get('FPS')
@@ -43,9 +44,10 @@ class OpenHDSettings:
             modified |= self.update_option(parser, 'telemetry_uart', uart)
             modified |= self.update_option(parser, 'telemetry_baudrate', baudrate)
         modified |= self.update_option(parser, 'video_width', video_width)
-        modified |= self.update_option(parser, 'video_height', video_height)
+        modified |= self.update_option(parser, 'video_blocklength', video_blocklength)
         modified |= self.update_option(parser, 'secondary_camera', secondary_camera)
         modified |= self.update_option(parser, 'video_port_secondary', video_port_secondary)
+        modified |= self.update_option(parser, 'video_blocklength_secondary', video_blocklength)
 
         # Write out the modified settings file
         if modified:

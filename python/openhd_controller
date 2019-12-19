@@ -65,6 +65,7 @@ if __name__ == '__main__':
         'video_port': 5600,
         'video_width': 10000,
         'video_height': 10000,
+        'video_blocksize': 1400,
         'fps': 60,
         'bitrate': 3000000,
         'quality': 20,
@@ -75,6 +76,7 @@ if __name__ == '__main__':
         'video_port_secondary': 5601,
         'video_width_secondary': 10000,
         'video_height_secondary': 10000,
+        'video_blocksize_secondary': 1400,
         'fps_secondary': 60,
         'bitrate_secondary': 3000000,
         'quality_secondary': 20,
@@ -177,6 +179,7 @@ if __name__ == '__main__':
                                        inline_headers=bool(config['global'].get('inline_headers')),
                                        intra_period=int(config['global'].get('intra_period')),
                                        prefer_picam=bool(config['global'].get('prefer_picam')),
+                                       blocksize=int(config['global'].get('video_blocksize')),
                                        fec_ratio=float(config['global'].get('fec_ratio')),
                                        port=int(config['global'].get('video_port')))
             logging.info("Using %s as primary camera",
@@ -194,6 +197,7 @@ if __name__ == '__main__':
                                         inline_headers=bool(config['global'].get('inline_headers_secondary')),
                                         intra_period=int(config['global'].get('intra_period_secondary')),
                                         prefer_picam=bool(config['global'].get('prefer_picam_secondary')),
+                                        blocksize=int(config['global'].get('video_blocksize_secondary')),
                                         fec_ratio=float(config['global'].get('fec_ratio_secondary')),
                                         port=int(config['global'].get('video_port_secondary')))
             logging.info("Using %s as secondary camera",
