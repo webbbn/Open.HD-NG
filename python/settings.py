@@ -63,6 +63,19 @@ class Settings:
         else:
             return False
 
+    def getynd(self, name):
+        '''Get the value of a yes/no/default tri-boolean setting, which should be either Y, N, or D'''
+        try:
+            val = self.get(name)
+        except:
+            return False
+        if val.lower()[0] == 'y':
+            return 1
+        elif val.lower()[0] == 'd':
+            return 2
+        else:
+            return 0
+
     def update(self, is_ground):
         '''Update all the component settings files and restart the components if necessary'''
 
@@ -78,3 +91,13 @@ class Settings:
         wifi_settings.update(self, is_ground)
         wfb_bridge_settings = WFBBridgeSettings()
         wfb_bridge_settings.update(self, is_ground)
+
+    def update_option(self, parser, section, name, value):
+        if value and parser.has_option(section, name):
+            val = parser.get(section, name)
+            if val != value:
+                parser.set(section, name, value)
+                logging.info("Changing " + name + " in section " + section +
+                             " from " + val + " to " + value)
+                return True
+        return False
