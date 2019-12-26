@@ -15,9 +15,9 @@ class WFBBridgeSettings:
         '''Perform the update of the wfb_bridge settings'''
 
         # Fetch the settings values from the settings file
-        use_mcs = settings.getyn('UseMCS')
-        use_stbc = settings.getyn('UseSTBC')
-        use_ldpc = settings.getyn('UseLDPC')
+        use_mcs = settings.getynd('UseMCS')
+        use_stbc = settings.getynd('UseSTBC')
+        use_ldpc = settings.get('UseLDPC')
         video_udp_host = settings.get('VIDEO_UDP_HOST')
         video_udp_port = settings.get('VIDEO_UDP_PORT')
         video_blocks = settings.get('VIDEO_BLOCKS')
@@ -44,40 +44,34 @@ class WFBBridgeSettings:
 
         # Update the options if they are different
         if is_ground:
-            modified |= self.update_option(parser, 'global', 'mode', 'ground')
+            modified |= settings.update_option(parser, 'global', 'mode', 'ground')
         else:
-            modified |= self.update_option(parser, 'global', 'mode', 'air')
-        modified |= self.update_option(parser, 'video', 'outhost', video_udp_host)
-        modified |= self.update_option(parser, 'video', 'outport', video_udp_port)
-        modified |= self.update_option(parser, 'video', 'blocks', video_blocks)
-        modified |= self.update_option(parser, 'video', 'fec', video_fecs)
-        modified |= self.update_option(parser, 'video', 'blocksize', video_blocklength)
-        modified |= self.update_option(parser, 'video2', 'outhost', video_udp_host_secondary)
-        modified |= self.update_option(parser, 'video2', 'outport', video_udp_port_secondary)
-        modified |= self.update_option(parser, 'video2', 'blocks', video_blocks_secondary)
-        modified |= self.update_option(parser, 'video2', 'fec', video_fecs_secondary)
-        modified |= self.update_option(parser, 'video2', 'blocksize', video_blocklength)
-        modified |= self.update_option(parser, 'telemetry', 'outhost', telemetry_udp_host)
-        modified |= self.update_option(parser, 'telemetry', 'outport', telemetry_udp_port)
-        modified |= self.update_option(parser, 'packed_status_down', 'outhost', link_status_udp_host)
-        modified |= self.update_option(parser, 'packed_status_down', 'outport', link_status_udp_port)
-        modified |= self.update_option(parser, 'rc', 'inport', telemetry_up_udp_port)
+            modified |= settings.update_option(parser, 'global', 'mode', 'air')
+        modified |= settings.update_option(parser, 'video', 'outhost', video_udp_host)
+        modified |= settings.update_option(parser, 'video', 'outport', video_udp_port)
+        modified |= settings.update_option(parser, 'video', 'blocks', video_blocks)
+        modified |= settings.update_option(parser, 'video', 'fec', video_fecs)
+        modified |= settings.update_option(parser, 'video', 'blocksize', video_blocklength)
+        modified |= settings.update_option(parser, 'video2', 'outhost', video_udp_host_secondary)
+        modified |= settings.update_option(parser, 'video2', 'outport', video_udp_port_secondary)
+        modified |= settings.update_option(parser, 'video2', 'blocks', video_blocks_secondary)
+        modified |= settings.update_option(parser, 'video2', 'fec', video_fecs_secondary)
+        modified |= settings.update_option(parser, 'video2', 'blocksize', video_blocklength)
+        modified |= settings.update_option(parser, 'telemetry', 'outhost', telemetry_udp_host)
+        modified |= settings.update_option(parser, 'telemetry', 'outport', telemetry_udp_port)
+        modified |= settings.update_option(parser, 'packed_status_down', 'outhost', link_status_udp_host)
+        modified |= settings.update_option(parser, 'packed_status_down', 'outport', link_status_udp_port)
+        modified |= settings.update_option(parser, 'rc', 'inport', telemetry_up_udp_port)
 
         # The datarate should only apply to the video link
-        if use_mcs:
-            if datarate <= 2:
-                datarate -= 1
-            else:
-                datarate -= 2
-        else:
-            datarate += 2
-        modified != self.update_option(parser, 'video', 'datarate', str(datarate))
+        datarate -= 1
+        modified != settings.update_option(parser, 'video', 'datarate', str(datarate))
 
         # Loop through each section modifying the wifi parameters
         for sec in parser.sections():
-            modified |= self.update_option(parser, sec, 'mcs', '1' if use_mcs else '0')
-            modified |= self.update_option(parser, sec, 'stbc', '1' if use_stbc else '0')
-            modified |= self.update_option(parser, sec, 'ldpc', '1' if use_ldpc else '0')
+            modified |= settings.update_option(parser, sec, 'mcs', str(use_mcs))
+            modified |= settings.update_option(parser, sec, 'stbc', str(use_stbc))
+            modified |= settings.update_option(parser, sec, 'ldpc', str(use_ldpc))
 
         # Write out the modified settings file
         if modified:
@@ -90,13 +84,3 @@ class WFBBridgeSettings:
             os.system("systemctl restart wfb_bridge")
 
         return modified
-
-    def update_option(self, parser, section, name, value):
-        if value and parser.has_option(section, name):
-            val = parser.get(section, name)
-            if val != value:
-                parser.set(section, name, value)
-                logging.info("Changing " + name + " in section " + section +
-                             " from " + val + " to " + value)
-                return True
-        return False

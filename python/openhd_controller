@@ -60,7 +60,8 @@ if __name__ == '__main__':
     # Read the config file
     config = configparser.ConfigParser()
     config['global'] = {
-        'loglevel': 'error',
+        'log_level': 'critical',
+        'syslog_level': 'info',
         'primary_camera': True,
         'video_port': 5600,
         'video_width': 10000,
@@ -100,14 +101,21 @@ if __name__ == '__main__':
         exit
 
     # Configure the logger
-    log_level = getattr(logging, config['global'].get('loglevel').upper())
+    log_level = getattr(logging, config['global'].get('log_level').upper())
+    syslog_level = getattr(logging, config['global'].get('syslog_level').upper())
     if not isinstance(log_level, int):
-        print("Invalid log level: %s - setting to info" % (args.loglevel))
+        print("Invalid log level: %s - setting to info" % (args.log_level))
         log_level = logging.INFO
-    logger = logging.getLogger('openhd_controller')
-    logging.basicConfig(level=log_level, format="%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S",
-                        handlers = [logging.StreamHandler(), logging.handlers.SysLogHandler(address = "/dev/log")])
-    logging.info("Logging at level: " + config['global'].get('loglevel'))
+    if not isinstance(syslog_level, int):
+        print("Invalid syslog level: %s - setting to info" % (args.syslog_level))
+        syslog_level = logging.INFO
+    logger = logging.getLogger('wifi_config')
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(log_level)
+    syslog_handler = logging.handlers.SysLogHandler(address = "/dev/log")
+    syslog_handler.setLevel(syslog_level)
+    logging.basicConfig(level=min(log_level, syslog_level), format="%(asctime)s %(levelname)s: %(message)s",
+                        datefmt="%H:%M:%S", handlers = [stream_handler, syslog_handler])
 
     # Determine if we're running as ground or air by detecting if a camera is present
     cameras = camera.detect_cameras()

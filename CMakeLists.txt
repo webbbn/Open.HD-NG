@@ -78,6 +78,7 @@ include_directories(${PROJECT_SOURCE_DIR}/modules/mavlink/common)
 
 # Install the configuration files
 install(FILES "${PROJECT_SOURCE_DIR}/conf/openhd" DESTINATION etc/default COMPONENT configuratios)
+install(FILES "${PROJECT_SOURCE_DIR}/conf/openhd-settings-1.txt" DESTINATION boot COMPONENT configuratios)
 
 # Install the service files
 install(FILES "${PROJECT_SOURCE_DIR}/services/openhd.service" DESTINATION etc/systemd/system COMPONENT configuratios)

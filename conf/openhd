@@ -1,5 +1,6 @@
 [global]
-loglevel = info
+log_level = critical
+sydlog_level = info
 primary_camera = True
 video_port = 5600
 video_width = 1280
