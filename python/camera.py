@@ -76,6 +76,9 @@ class UDPOutputStream(object):
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         
     def write(self, s):
+        t = time.time()
+        ts = "%03d:%03d" % (int(t) % 1000, round(t * 1000) % 1000)
+        #t = round(time.time() * 1000) % 1000
         self.log.log(len(s))
         if self.broadcast:
             host = '<broadcast>'
@@ -85,9 +88,12 @@ class UDPOutputStream(object):
             for b in self.fec.encode_buffer(s):
                 self.sock.sendto(b, (host, self.port))
         else:
+            np = math.ceil((len(s) + 8) / self.maxpacket)
+            #s = b'FRAM' + struct.pack('HH', t, np) + s
+            #with open(ts, "wb") as fp:
+            #    fp.write(s)
             for i in range(0, len(s), self.maxpacket):
-                pkt = s[i : min(i + self.maxpacket, len(s))]
-                self.sock.sendto(pkt, (host, self.port))
+                self.sock.sendto(s[i : min(i + self.maxpacket, len(s))], (host, self.port))
 
 class Camera(object):
 
