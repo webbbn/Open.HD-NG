@@ -98,6 +98,6 @@ class Settings:
             if val != value:
                 parser.set(section, name, value)
                 logging.info("Changing " + name + " in section " + section +
-                             " from " + val + " to " + value)
+                             " from " + str(val) + " to " + str(value))
                 return True
         return False

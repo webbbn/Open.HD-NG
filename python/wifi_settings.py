@@ -47,7 +47,7 @@ class WifiSettings:
                 ldpc = 0 if ldpc == 2 else ldpc
             modified |= settings.update_option(parser, sec, 'mcs', mcs)
             modified |= settings.update_option(parser, sec, 'stbc', stbc)
-            modified |= settings.update_option(parser, sec, 'stbc', stbc)
+            modified |= settings.update_option(parser, sec, 'ldpc', ldpc)
 
             if parser.has_option(sec, 'frequency'):
                 sec_freq = int(parser.get(sec, 'frequency'))
