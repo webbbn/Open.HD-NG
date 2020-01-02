@@ -38,7 +38,7 @@ import logging.handlers
 import configparser
 import multiprocessing as mp
 
-from openhd import camera, telemetry, settings, video_player
+from openhd import camera, telemetry, video_player
 
 # Define an exit handler to do a graceful shutdown
 def exit_handler(sig, frame):
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # The first argument should be the component config file.
     # An option second argument is the OpenHD config file
     if len(sys.argv) != 2 and len(sys.argv) != 3:
-        sys.stderr.write("Usage: " + sys.argv[0] + " <config file> [Open.HD config file]\n")
+        sys.stderr.write("Usage: " + sys.argv[0] + " <config file>\n")
         exit(1)
     config_filename = sys.argv[1]
 
@@ -125,23 +125,6 @@ if __name__ == '__main__':
     else:
         is_ground = True
         logging.info("No camera detected, so running in Ground mode")
-
-    # Parse the Open.HD config file if it exists.
-    if len(sys.argv) == 3:
-        if os.path.exists(sys.argv[2]):
-            if is_ground:
-                logging.info("Updating settings as ground from: " + sys.argv[2])
-            else:
-                logging.info("Updating settings as air from: " + sys.argv[2])
-            sf = settings.Settings(sys.argv[2]) 
-            sf.update(is_ground)
-
-            # Reload our configuration file
-            config.read(config_filename)
-
-        else:
-            logging.info("Open.HD settings file: " + sys.argv[2] + " does not exist")
-
         
     # Setup an exit handler to gracefully exit
     signal.signal(signal.SIGINT, exit_handler)

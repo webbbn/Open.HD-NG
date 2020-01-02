@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(Open.HD-NG)
 
+set(PKG_VERSION "0.9.0")
+
 # Point to our local cmake files
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -78,7 +80,6 @@ include_directories(${PROJECT_SOURCE_DIR}/modules/mavlink/common)
 
 # Install the configuration files
 install(FILES "${PROJECT_SOURCE_DIR}/conf/openhd" DESTINATION etc/default COMPONENT configuratios)
-install(FILES "${PROJECT_SOURCE_DIR}/conf/openhd-settings-1.txt" DESTINATION boot COMPONENT configuratios)
 
 # Install the service files
 install(FILES "${PROJECT_SOURCE_DIR}/services/openhd.service" DESTINATION etc/systemd/system COMPONENT configuratios)
@@ -90,7 +91,7 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev,cython3,libv4l-dev")
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "webbbn@gmail.con")
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
-set(CPACK_PACKAGE_VERSION "0.1.0")
+set(CPACK_PACKAGE_VERSION ${PKG_VERSION})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY /)
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /)
